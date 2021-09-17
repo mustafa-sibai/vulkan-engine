@@ -21,9 +21,21 @@
     <ClInclude Include="core\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\System\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Platform\Windows\WINWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\System\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Platform\Windows\WINWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -96,6 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);VE_PLATFORM_WINDOWS;VE_CORE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +119,7 @@ xcopy $(SolutionDir)$(ProjectName)\*.h $(SolutionDir)Build\$(ProjectName)\includ
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);VE_PLATFORM_WINDOWS;VE_CORE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +142,7 @@ xcopy $(SolutionDir)$(ProjectName)\*.h $(SolutionDir)Build\$(ProjectName)\includ
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);VE_PLATFORM_WINDOWS;VE_CORE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,6 +165,7 @@ xcopy $(SolutionDir)$(ProjectName)\*.h $(SolutionDir)Build\$(ProjectName)\includ
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);VE_PLATFORM_WINDOWS;VE_CORE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,9 +185,13 @@ xcopy $(SolutionDir)$(ProjectName)\*.h $(SolutionDir)Build\$(ProjectName)\includ
   <ItemGroup>
     <ClInclude Include="core\Common.h" />
     <ClInclude Include="core\Engine.h" />
+    <ClInclude Include="core\System\Window.h" />
+    <ClInclude Include="core\Platform\Windows\WINWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Engine.cpp" />
+    <ClCompile Include="core\System\Window.cpp" />
+    <ClCompile Include="core\Platform\Windows\WINWindow.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,9 +1,12 @@
 #pragma once
 #include "Common.h"
 
-class VE_API Engine
+namespace VE
 {
-public:
-	Engine();
-	~Engine();
-};
+	class VE_API Engine
+	{
+	public:
+		Engine();
+		~Engine();
+	};
+}

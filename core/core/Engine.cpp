@@ -1,11 +1,14 @@
 #include "Engine.h"
 #include <iostream>
 
-Engine::Engine()
+namespace VE
 {
-	std::cout << "Hello Engine!" << std::endl;
-}
+	Engine::Engine()
+	{
+		std::cout << "Hello Engine!" << std::endl;
+	}
 
-Engine::~Engine()
-{
+	Engine::~Engine()
+	{
+	}
 }
