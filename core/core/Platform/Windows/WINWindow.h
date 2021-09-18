@@ -4,24 +4,27 @@
 
 namespace VE
 {
-	class VE_API WINWindow
+	namespace Windows
 	{
-	private:
-		WNDCLASS wc;
-		HINSTANCE hInstance;
-		HWND hWnd;
-		MSG msg;
-		int nCmdShow;
-		bool isWindowOpen;
+		class VE_API WINWindow
+		{
+		private:
+			WNDCLASS wc;
+			HINSTANCE hInstance;
+			HWND hWnd;
+			MSG msg;
+			int nCmdShow;
+			bool isWindowOpen;
 
-	public:
-		WINWindow();
-		~WINWindow();
+		public:
+			WINWindow();
+			~WINWindow();
 
-		void Create(int PositionX, int PositionY, int Width, int Height);
-		void Update();
+			void Create(int PositionX, int PositionY, int Width, int Height);
+			void Update();
 
-		inline bool WindowIsOpen() { return isWindowOpen; }
-		static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	};
+			inline bool WindowIsOpen() { return isWindowOpen; }
+			static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		};
+	}
 }

@@ -203,11 +203,13 @@ xcopy $(SolutionDir)$(ProjectName)\*.h $(SolutionDir)Build\$(ProjectName)\includ
     <ClInclude Include="core\Engine.h" />
     <ClInclude Include="core\System\Window.h" />
     <ClInclude Include="core\Platform\Windows\WINWindow.h" />
+    <ClInclude Include="core\GraphicsAPI\Vulkan\Vulkan.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Engine.cpp" />
     <ClCompile Include="core\System\Window.cpp" />
     <ClCompile Include="core\Platform\Windows\WINWindow.cpp" />
+    <ClCompile Include="core\GraphicsAPI\Vulkan\Vulkan.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

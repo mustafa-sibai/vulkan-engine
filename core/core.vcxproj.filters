@@ -27,6 +27,9 @@
     <ClInclude Include="core\Platform\Windows\WINWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\GraphicsAPI\Vulkan\Vulkan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Engine.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="core\Platform\Windows\WINWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\GraphicsAPI\Vulkan\Vulkan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
