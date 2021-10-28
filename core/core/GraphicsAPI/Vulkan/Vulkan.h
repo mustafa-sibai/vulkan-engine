@@ -21,6 +21,7 @@ namespace VE
 				VkPhysicalDevice physicalDevice;
 				VkDevice logicalDevice;
 				VkQueue graphicsQueue;
+				VkQueue presentationQueue;
 				VkSurfaceKHR surface;
 
 			public:

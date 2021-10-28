@@ -59,27 +59,39 @@ namespace VE
 				}
 
 				std::vector<const char*> extensionNames;
-				std::cout << extensionCount << std::endl;
+				std::cout << "\n---------------------------" << std::endl;
+				std::cout << "Total extensions found " << extensionCount << std::endl;
+				std::cout << "Supported extensions are: " << std::endl;
+
+				bool VK_KHR_WIN32_SURFACE_EXT = false;
+				bool VK_KHR_SURFACE_EXT = false;
 
 				for (size_t i = 0; i < extensionProperties.size(); i++)
 				{
-					/*
-					VK_KHR_device_group_creation
-					VK_KHR_external_fence_capabilities
-					VK_KHR_external_memory_capabilities
-					VK_KHR_external_semaphore_capabilities
-					VK_KHR_get_physical_device_properties2
-					VK_KHR_get_surface_capabilities2
-					VK_KHR_surface
-					VK_KHR_win32_surface
-					VK_EXT_debug_report
-					VK_EXT_debug_utils
-					VK_EXT_swapchain_colorspace
-					*/
 					if (strcmp(extensionProperties[i].extensionName, "VK_KHR_win32_surface") == 0)
-						extensionNames.push_back(extensionProperties[i].extensionName);
+					{
+						VK_KHR_WIN32_SURFACE_EXT = true;
+						std::cout << "Found support for VK_KHR_win32_surface" << std::endl;
+						extensionNames.emplace_back(extensionProperties[i].extensionName);
+					}
 					else if (strcmp(extensionProperties[i].extensionName, "VK_KHR_surface") == 0)
-						extensionNames.push_back(extensionProperties[i].extensionName);
+					{
+						VK_KHR_SURFACE_EXT = true;
+						std::cout << "Found support for VK_KHR_surface" << std::endl;
+						extensionNames.emplace_back(extensionProperties[i].extensionName);
+					}
+				}
+
+				if (!VK_KHR_WIN32_SURFACE_EXT)
+				{
+					std::cout << "Count not find support for VK_KHR_win32_surface" << std::endl;
+					return;
+				}
+
+				if (!VK_KHR_SURFACE_EXT)
+				{
+					std::cout << "Count not find support for VK_KHR_surface" << std::endl;
+					return;
 				}
 
 				VkInstanceCreateInfo instanceCreateInfo{ };
@@ -98,7 +110,26 @@ namespace VE
 					std::cout << "Failed to create a Vulkan instance" << std::endl;
 					return;
 				}
+				std::cout << "---------------------------\n" << std::endl;
 				//-------------------------------- Create Vulkan Instance --------------------------------
+
+
+				//-------------------------------- Vulkan win32 Surface --------------------------------
+				VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo{ };
+				win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+				win32SurfaceCreateInfo.hwnd = window.hWnd;
+				win32SurfaceCreateInfo.hinstance = window.hInstance;
+
+				result = vkCreateWin32SurfaceKHR(instance, &win32SurfaceCreateInfo, nullptr, &surface);
+
+				if (result == VK_SUCCESS)
+					std::cout << "Vulkan win32 surface has been created successfully" << std::endl;
+				else
+				{
+					std::cout << "Failed to create Vulkan win32 surface" << std::endl;
+					return;
+				}
+				//-------------------------------- Vulkan win32 Surface --------------------------------
 
 
 				//-------------------------------- Select Physical Device --------------------------------
@@ -114,7 +145,7 @@ namespace VE
 				std::vector<VkPhysicalDevice> devices(deviceCount);
 				vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-				std::cout << "deviceCount: " << deviceCount << std::endl;
+				std::cout << "Total physical device count found is: " << deviceCount << std::endl;
 
 				for (size_t i = 0; i < devices.size(); i++)
 				{
@@ -144,51 +175,166 @@ namespace VE
 				//-------------------------------- Select Physical Device --------------------------------
 
 
-				//-------------- Search for Graphics Queue Family and get its index number ----------------
+				//-------------------------------- Query Physical Device Extensions --------------------------------
+				uint32_t physicalDeviceExtensionCount = 0;
+
+				result = vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &physicalDeviceExtensionCount, nullptr);
+
+				if (result == VK_SUCCESS)
+					std::cout << "Vulkan physical device extension retrieval was successful" << std::endl;
+				else
+				{
+					std::cout << "Failed to retrieve Vulkan physical device extension" << std::endl;
+					return;
+				}
+
+				std::vector<VkExtensionProperties> availablePhysicalDeviceExtensions(physicalDeviceExtensionCount);
+
+				result = vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &physicalDeviceExtensionCount, availablePhysicalDeviceExtensions.data());
+
+				if (result == VK_SUCCESS)
+					std::cout << "Vulkan physical device extension retrieval was successful" << std::endl;
+				else
+				{
+					std::cout << "Failed to retrieve Vulkan physical device extension" << std::endl;
+					return;
+				}
+
+				std::vector<const char*> physicalDeviceExtensionNames;
+
+				for (size_t i = 0; i < availablePhysicalDeviceExtensions.size(); i++)
+				{
+					if (strcmp(availablePhysicalDeviceExtensions[i].extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0)
+					{
+						std::cout << "Found support for VK_KHR_swapchain" << std::endl;
+						physicalDeviceExtensionNames.emplace_back(availablePhysicalDeviceExtensions[i].extensionName);
+						break;
+					}
+				}
+
+				if (physicalDeviceExtensionNames.size() <= 0)
+				{
+					std::cout << "Count not find support for VK_KHR_swapchain" << std::endl;
+					return;
+				}
+
+				//-------------------------------- Query Physical Device Extensions --------------------------------
+
+
+				//-------------- Search for Graphics Queue and Presnetation Queue Family and get their index number ----------------
 				uint32_t queueFamilyCount = 0;
 				vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
 				std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 				vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-				int graphicsFamilyIndex = -1;
+				std::vector<int> graphicsQueueFamilyIndecies;
+				std::vector<int> presentationQueueFamilyIndecies;
+				std::vector<int> uniqueQueueFamilyIndecies;
+
 				for (size_t i = 0; i < queueFamilies.size(); i++)
 				{
 					if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-						graphicsFamilyIndex = i;
+					{
+						graphicsQueueFamilyIndecies.emplace_back(i);
+						std::cout << "Graphics Family found at index: " << i << std::endl;
+					}
+
+					//---------------------- Query for presentation support ----------------------
+					VkBool32 doesQueueSupportPresentation;
+					result = vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &doesQueueSupportPresentation);
+
+					if (result == VK_SUCCESS)
+						std::cout << "Querying for Vulkan Physical Device Surface Support is successful" << std::endl;
+					else
+					{
+						std::cout << "Failed to query for presentation support in graphics queue" << std::endl;
+						return;
+					}
+
+					if (doesQueueSupportPresentation)
+					{
+						presentationQueueFamilyIndecies.emplace_back(i);
+						std::cout << "Presentation Family found at index: " << i << std::endl;
+					}
+
+					//---------------------- Query for presentation support ----------------------
 				}
 
-				if (graphicsFamilyIndex > -1)
-					std::cout << "Graphics Family found at index: " << graphicsFamilyIndex << std::endl;
-				else
+				if (graphicsQueueFamilyIndecies.size() <= 0)
 				{
 					std::cout << "Failed to find Graphics Family in vkGetPhysicalDeviceQueueFamilyProperties" << std::endl;
 					return;
 				}
-				//-------------- Search for Graphics Queue Family and get its index number ----------------
+
+				if (presentationQueueFamilyIndecies.size() <= 0)
+				{
+					std::cout << "Failed to find Presentation Family in vkGetPhysicalDeviceSurfaceSupportKHR" << std::endl;
+					return;
+				}
+
+				//------ Find the common index between graphics and presentation queue family ------
+				int graphicsQueueFamilyIndex = -1;
+				int presentationQueueFamilyIndex = -1;
+
+				for (size_t i = 0; i < graphicsQueueFamilyIndecies.size(); i++)
+				{
+					for (size_t j = 0; j < presentationQueueFamilyIndecies.size(); j++)
+					{
+						if (graphicsQueueFamilyIndecies[i] == presentationQueueFamilyIndecies[j])
+						{
+							uniqueQueueFamilyIndecies.emplace_back(graphicsQueueFamilyIndecies[i]);
+							graphicsQueueFamilyIndex = graphicsQueueFamilyIndecies[i];
+							presentationQueueFamilyIndex = graphicsQueueFamilyIndecies[i];
+							std::cout << "Found a queue family that supports both graphics and presentation to surface at index " << graphicsQueueFamilyIndecies[i] << std::endl;
+							break;
+						}
+					}
+				}
+
+				if (uniqueQueueFamilyIndecies.size() <= 0)
+				{
+					std::cout << "Failed to find a queue family that supports both graphics and presentation to surface!" << std::endl;
+					graphicsQueueFamilyIndex = graphicsQueueFamilyIndecies[0];
+					presentationQueueFamilyIndex = presentationQueueFamilyIndecies[0];
+
+					uniqueQueueFamilyIndecies.emplace_back(graphicsQueueFamilyIndex);
+					uniqueQueueFamilyIndecies.emplace_back(presentationQueueFamilyIndex);
+
+					std::cout << "first graphics queue family will be chosen which is at index " << graphicsQueueFamilyIndex << std::endl;
+					std::cout << "first presentation queue family will be chosen which is at index " << presentationQueueFamilyIndex << std::endl;
+				}
+				//------ Find the common index between graphics and presentation queue family ------
+				//-------------- Search for Graphics Queue and Presnetation Queue Family and get their index number  ----------------
 
 
 				//-------------------- Create vulkan logical device and graphics queue family --------------------
-				VkDeviceQueueCreateInfo queueCreateInfo{ };
-				queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-				queueCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
-				queueCreateInfo.queueCount = 1;
+				std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
 
 				float queuePriority = 1.0f;
-				queueCreateInfo.pQueuePriorities = &queuePriority;
+				for (size_t i = 0; i < uniqueQueueFamilyIndecies.size(); i++)
+				{
+					VkDeviceQueueCreateInfo queueCreateInfo{ };
+					queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+					queueCreateInfo.queueFamilyIndex = uniqueQueueFamilyIndecies[i];
+					queueCreateInfo.queueCount = 1;
+					queueCreateInfo.pQueuePriorities = &queuePriority;
+					deviceQueueCreateInfos.emplace_back(queueCreateInfo);
+				}
 
 				VkPhysicalDeviceFeatures physicalDeviceFeatures{ };
 
 				VkDeviceCreateInfo logicalDeviceCreateInfo{ };
 				logicalDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-				logicalDeviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-				logicalDeviceCreateInfo.queueCreateInfoCount = 1;
+				logicalDeviceCreateInfo.enabledExtensionCount = physicalDeviceExtensionNames.size();
+				logicalDeviceCreateInfo.ppEnabledExtensionNames = physicalDeviceExtensionNames.data();
+				logicalDeviceCreateInfo.queueCreateInfoCount = deviceQueueCreateInfos.size();
+				logicalDeviceCreateInfo.pQueueCreateInfos = deviceQueueCreateInfos.data();
 				logicalDeviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures;
-				logicalDeviceCreateInfo.enabledExtensionCount = 0;
 
 				//TODO: Added validation Layers here
 				//https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues
-				logicalDeviceCreateInfo.enabledLayerCount = 0;
+				//logicalDeviceCreateInfo.enabledLayerCount = 0;
 
 				result = vkCreateDevice(physicalDevice, &logicalDeviceCreateInfo, nullptr, &logicalDevice);
 
@@ -200,26 +346,9 @@ namespace VE
 					return;
 				}
 
-				vkGetDeviceQueue(logicalDevice, graphicsFamilyIndex, 0, &graphicsQueue);
+				vkGetDeviceQueue(logicalDevice, graphicsQueueFamilyIndex, 0, &graphicsQueue);
+				vkGetDeviceQueue(logicalDevice, presentationQueueFamilyIndex, 0, &presentationQueue);
 				//-------------------- Create vulkan logical device and graphics queue family --------------------
-
-
-				//-------------------------- Vulkan win32 Surface --------------------------
-				VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfo{ };
-				win32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-				win32SurfaceCreateInfo.hwnd = window.hWnd;
-				win32SurfaceCreateInfo.hinstance = window.hInstance;
-
-				result = vkCreateWin32SurfaceKHR(instance, &win32SurfaceCreateInfo, nullptr, &surface);
-
-				if (result == VK_SUCCESS)
-					std::cout << "Vulkan win32 surface has been created successfully" << std::endl;
-				else
-				{
-					std::cout << "Failed to create Vulkan win32 surface" << std::endl;
-					return;
-				}
-				//-------------------------- Vulkan win32 Surface --------------------------
 			}
 		}
 	}
