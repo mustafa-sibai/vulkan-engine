@@ -15,7 +15,7 @@ int main()
 	window.Create(100, 200, 1920, 1080);
 
 	Vulkan vulkan;
-	vulkan.Initialize();
+	vulkan.Initialize(window);
 
 	while (window.WindowIsOpen())
 	{

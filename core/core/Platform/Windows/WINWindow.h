@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include "../../GraphicsAPI/Vulkan/Vulkan.h"
 #include "../../Common.h"
 
 namespace VE
@@ -8,6 +9,8 @@ namespace VE
 	{
 		class VE_API WINWindow
 		{
+			friend class VE::GraphicsAPI::Vulkan::Vulkan;
+
 		private:
 			WNDCLASS wc;
 			HINSTANCE hInstance;
